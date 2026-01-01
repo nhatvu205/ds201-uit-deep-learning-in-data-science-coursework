@@ -7,7 +7,7 @@ from config import Config
 from data_loader import build_vocabularies, create_dataloaders
 from model import Encoder, Decoder, Seq2Seq
 from train import train_model
-from evaluate import evaluate_model, show_translation_examples, plot_training_history
+from evaluate import evaluate_model, show_translation_examples, plot_training_history, plot_metric_history
 
 def main():
     print("Initializing configuration...")
@@ -65,11 +65,13 @@ def main():
     print(f"[INFO] Total trainable parameters: {total_params:,}")
     
     print("\nTraining model...")
-    train_losses, val_losses = train_model(model, train_loader, dev_loader, config)
+    train_losses, val_losses, val_rouge = train_model(model, train_loader, dev_loader, config, tgt_vocab)
     print("\nTraining completed!")
     
     print("\n[INFO] Displaying training history...")
     plot_training_history(train_losses, val_losses)
+    if len(val_rouge) > 0:
+        plot_metric_history(val_rouge, metric_name='ROUGE-L')
     
     print("\n[INFO] Evaluating on test set...")
     test_results = evaluate_model(model, test_loader, config, tgt_vocab)
